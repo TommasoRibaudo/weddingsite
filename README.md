@@ -34,3 +34,16 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# TODO
+  # Generate hashes (run in Node REPL or a script):
+  node -e "const b=require('bcryptjs'); console.log(b.hashSync('yourpassword', 10))"
+
+  SESSION_SECRET=<generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
+  GUEST_PASSWORD_HASH=<bcrypt hash>
+  ADMIN_PASSWORD_HASH=<bcrypt hash>
+  NEXT_PUBLIC_SUPABASE_URL=<from Supabase dashboard>
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=<from Supabase dashboard>
+  SUPABASE_SERVICE_ROLE_KEY=<from Supabase dashboard>
+
+  La Luxe Script font: place the .woff2 file at public/fonts/la-luxe-script.woff2. Until then, Great Vibes (Google
+  Fonts) is the active fallback.
