@@ -42,7 +42,7 @@ export default function GiftMapSection({ embedUrl }: GiftMapSectionProps) {
         </div>
 
         {embedUrl ? (
-          <div className="aspect-[4/3] w-full bg-green-pale sm:aspect-[16/9]">
+          <div className="h-[28rem] w-full bg-green-pale sm:h-auto sm:aspect-[16/9]">
             <iframe
               src={embedUrl}
               title={t.gifts.mapTitle}
@@ -60,3 +60,4 @@ export default function GiftMapSection({ embedUrl }: GiftMapSectionProps) {
     </section>
   );
 }
+
