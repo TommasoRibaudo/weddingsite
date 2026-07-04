@@ -1,10 +1,12 @@
 'use client';
 import { useTransition, useState } from 'react';
 import { reserveGift } from '@/app/actions/gifts';
+import { useLanguage } from '@/components/LanguageProvider';
 
 type Status = 'available' | 'pending' | 'reserved' | 'taken' | 'error';
 
 export default function ReserveButton({ giftId }: { giftId: string }) {
+  const { t } = useLanguage();
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<Status>('available');
   const [errorMsg, setErrorMsg] = useState('');
@@ -20,20 +22,20 @@ export default function ReserveButton({ giftId }: { giftId: string }) {
         setStatus('taken');
       } else {
         setStatus('error');
-        setErrorMsg(result.error ?? 'Something went wrong.');
+        setErrorMsg(result.error ?? t.menu.genericError);
       }
     });
   }
 
   if (status === 'reserved') {
     return (
-      <p className="font-body text-green font-semibold text-sm">Reserved ✓</p>
+      <p className="font-body text-green font-semibold text-sm">{t.gifts.reservedDone}</p>
     );
   }
 
   if (status === 'taken') {
     return (
-      <p className="font-body text-gray-400 text-sm italic">Already reserved</p>
+      <p className="font-body text-gray-400 text-sm italic">{t.gifts.alreadyReserved}</p>
     );
   }
 
@@ -50,7 +52,7 @@ export default function ReserveButton({ giftId }: { giftId: string }) {
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
         )}
-        {isPending ? 'Reserving…' : 'Reserve'}
+        {isPending ? t.gifts.reserving : t.gifts.reserve}
       </button>
       {status === 'error' && (
         <p className="font-body text-red-600 text-xs mt-1">{errorMsg}</p>

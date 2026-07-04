@@ -8,7 +8,7 @@ Gemini is the coding assistant and repository builder for the Wedding Website pr
 
 Gemini is responsible for:
 
-- **Implementation:** Writing and editing frontend source code (Next.js App Router), implementing pages (Gate `/`, Home `/home`, Gifts `/gifts`, Gallery `/gallery`, Admin `/admin`), and integrating Supabase DB and Storage according to the [PRD.md](file:///C:/Users/User/Documents/weddingsite/PRD.md) roadmap.
+- **Implementation:** Writing and editing frontend source code (Next.js App Router), implementing pages (Gate `/`, Home `/home`, Gifts `/gifts`, Gallery `/gallery`, Admin `/tomma/bobba`), and integrating Supabase DB and Storage according to the [PRD.md](file:///C:/Users/User/Documents/weddingsite/PRD.md) roadmap.
 - **Styling & Design:** Crafting a premium, responsive white and green theme (`#386b40`) using **Crimson Pro** for body text and **La Luxe Script** for accents/headings.
 - **Testing:** Verifying features locally against the test cases defined in [MANUAL_TESTS.md](file:///C:/Users/User/Documents/weddingsite/MANUAL_TESTS.md) before finalizing.
 - **Project Management:** Coordinating tasks, maintaining clean environment variable templates, and documenting progress.

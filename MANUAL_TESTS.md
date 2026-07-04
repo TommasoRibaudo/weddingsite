@@ -131,36 +131,36 @@ This checklist covers the full wedding site functionality described in the PRD a
 
 ## 8. Admin Login / Session
 
-- Visit `/admin` while logged out.
-  - Expected: redirects to `/admin/login`.
+- Visit `/tomma/bobba` while logged out.
+  - Expected: redirects to `/tomma/bobba/login`.
 - Enter wrong admin password.
   - Expected: inline error.
 - Enter correct admin password.
-  - Expected: redirects to `/admin`.
+  - Expected: redirects to `/tomma/bobba`.
 - Visit `/home`, `/gifts`, and `/gallery` as admin.
   - Expected: admin can access guest routes.
 - Log out from admin.
-  - Expected: admin session cleared and `/admin` redirects to `/admin/login`.
+  - Expected: admin session cleared and `/tomma/bobba` redirects to `/tomma/bobba/login`.
 
 ## 9. Admin Gifts
 
-- Visit `/admin`.
+- Visit `/tomma/bobba`.
   - Expected: gift list appears with status, reserver names, reserved timestamps, and actions.
 - Reserve a gift as a guest, then view admin.
   - Expected: admin sees who reserved it.
 - Click "Un-reserve."
-  - Expected: gift becomes available in `/admin` and `/gifts`.
+  - Expected: gift becomes available in `/tomma/bobba` and `/gifts`.
 - If "Add gift" is implemented:
   - Submit with empty name.
     - Expected: validation error.
   - Submit valid gift details.
-    - Expected: new gift appears in `/admin` and `/gifts`.
+    - Expected: new gift appears in `/tomma/bobba` and `/gifts`.
 
 ## 10. Admin Photo / Comment Moderation
 
 - As admin, confirm dashboard shows photos with uploader names and timestamps.
 - Delete an individual comment.
-  - Expected: comment disappears from `/admin` and `/gallery`.
+  - Expected: comment disappears from `/tomma/bobba` and `/gallery`.
 - Delete a photo.
   - Expected: confirmation appears.
 - Confirm deletion.
@@ -195,7 +195,7 @@ This checklist covers the full wedding site functionality described in the PRD a
 
 ## 13. Responsive / Visual Polish
 
-Test `/`, `/home`, `/gifts`, `/gallery`, `/admin/login`, and `/admin` at:
+Test `/`, `/home`, `/gifts`, `/gallery`, `/tomma/bobba/login`, and `/tomma/bobba` at:
 
 - 375px
 - 390px

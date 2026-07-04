@@ -14,8 +14,8 @@ export default function HomePage() {
       {wedding.additionalNotes && (
         <section className="py-12 px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="bg-green-pale rounded-xl p-8">
-              <p className="font-body text-gray-700 leading-relaxed">
+            <div className="floral-panel bg-green-pale/80 rounded-lg border border-greige p-8">
+              <p className="font-body text-charcoal leading-relaxed">
                 {wedding.additionalNotes}
               </p>
             </div>

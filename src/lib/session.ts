@@ -5,7 +5,6 @@ export interface SessionData {
   access: boolean;
   guestName: string;
   isAdmin: boolean;
-  passwordVerified: boolean;
 }
 
 export const sessionOptions = {

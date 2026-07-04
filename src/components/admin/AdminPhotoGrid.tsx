@@ -1,15 +1,17 @@
 'use client';
+import Image from 'next/image';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Trash2 } from 'lucide-react';
+import { MessageCircle, Trash2 } from 'lucide-react';
 import { deletePhoto } from '@/app/actions/admin';
 import AdminCommentList, { type AdminComment } from './AdminCommentList';
 
 export type AdminPhoto = {
   id: string;
-  storage_path: string;
+  storage_path: string | null;
   thumbnail_path: string | null;
   uploaded_by: string;
+  body: string | null;
   created_at: string;
 };
 
@@ -26,11 +28,12 @@ export default function AdminPhotoGrid({ photos, signedUrls, comments }: Props) 
   const router = useRouter();
 
   if (photos.length === 0) {
-    return <p className="font-body text-gray-400 italic">No photos yet.</p>;
+    return <p className="font-body text-gray-400 italic">No feed posts yet.</p>;
   }
 
-  function handleDelete(photoId: string) {
-    if (!window.confirm('Delete this photo and all its comments?')) return;
+  function handleDelete(photoId: string, hasImage: boolean) {
+    const label = hasImage ? 'photo' : 'note';
+    if (!window.confirm(`Delete this ${label} and all its comments?`)) return;
     setDeletingId(photoId);
     startTransition(async () => {
       await deletePhoto(photoId);
@@ -47,10 +50,11 @@ export default function AdminPhotoGrid({ photos, signedUrls, comments }: Props) 
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {photos.map((photo) => {
+          const hasImage = Boolean(photo.storage_path || photo.thumbnail_path);
           const urlKey = photo.thumbnail_path ?? photo.storage_path;
-          const url = signedUrls[urlKey] ?? null;
+          const url = urlKey ? signedUrls[urlKey] ?? null : null;
           const isExpanded = expandedId === photo.id;
           const isDeleting = isPending && deletingId === photo.id;
 
@@ -62,15 +66,21 @@ export default function AdminPhotoGrid({ photos, signedUrls, comments }: Props) 
                 }`}
                 onClick={() => setExpandedId(isExpanded ? null : photo.id)}
               >
-                {url ? (
-                  <img
+                {hasImage && url ? (
+                  <Image
                     src={url}
                     alt={`Photo by ${photo.uploaded_by}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
-                ) : (
+                ) : hasImage ? (
                   <div className="w-full h-full flex items-center justify-center font-body text-xs text-gray-300">
                     No preview
+                  </div>
+                ) : (
+                  <div className="h-full p-3 flex flex-col justify-between">
+                    <MessageCircle size={18} className="text-green-light" />
+                    <p className="font-body text-sm text-gray-700 line-clamp-4">{photo.body}</p>
                   </div>
                 )}
               </div>
@@ -82,8 +92,8 @@ export default function AdminPhotoGrid({ photos, signedUrls, comments }: Props) 
                   </p>
                 </div>
                 <button
-                  aria-label="Delete photo"
-                  onClick={() => handleDelete(photo.id)}
+                  aria-label={hasImage ? 'Delete photo' : 'Delete note'}
+                  onClick={() => handleDelete(photo.id, hasImage)}
                   disabled={isDeleting}
                   className="p-1 text-gray-300 hover:text-red-500 transition-colors disabled:opacity-40 shrink-0"
                 >
@@ -99,13 +109,13 @@ export default function AdminPhotoGrid({ photos, signedUrls, comments }: Props) 
         <div className="bg-white rounded-xl border border-greige p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="font-body font-semibold text-sm text-gray-800">
-              Comments — {expandedPhoto.uploaded_by}
+              Comments - {expandedPhoto.uploaded_by}
             </p>
             <button
               onClick={() => setExpandedId(null)}
               className="font-body text-xs text-gray-400 hover:text-gray-600"
             >
-              Close ×
+              Close x
             </button>
           </div>
           <AdminCommentList comments={expandedComments} />

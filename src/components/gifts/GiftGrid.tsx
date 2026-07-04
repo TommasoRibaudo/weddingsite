@@ -1,17 +1,23 @@
 'use client';
 import GiftCard, { type Gift } from './GiftCard';
+import Reveal from '@/components/Reveal';
+import { useLanguage } from '@/components/LanguageProvider';
 
-export default function GiftGrid({ gifts, isAdmin }: { gifts: Gift[]; isAdmin: boolean }) {
+export default function GiftGrid({ gifts, isAdmin, guestName }: { gifts: Gift[]; isAdmin: boolean; guestName: string }) {
+  const { t } = useLanguage();
+
   if (gifts.length === 0) {
     return (
-      <p className="font-body italic text-gray-500 text-center py-16">Gift list coming soon.</p>
+      <p className="font-body italic text-gray-500 text-center py-16">{t.gifts.comingSoon}</p>
     );
   }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {gifts.map((gift) => (
-        <GiftCard key={gift.id} gift={gift} isAdmin={isAdmin} />
+      {gifts.map((gift, i) => (
+        <Reveal key={gift.id} delay={Math.min(i * 80, 400)} scale>
+          <GiftCard gift={gift} isAdmin={isAdmin} guestName={guestName} />
+        </Reveal>
       ))}
     </div>
   );

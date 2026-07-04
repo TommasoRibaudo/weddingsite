@@ -1,26 +1,561 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Great+Vibes&display=swap');
-
 @font-face {
   font-family: 'La Luxe Script';
-  src: url('/fonts/la-luxe-script.woff2') format('woff2');
+  src: url('/fonts/la-luxe-script.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/CrimsonPro-VariableFont.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/CrimsonPro-Italic-VariableFont.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
   font-display: swap;
 }
 
 @theme {
   --color-green: #386b40;
-  --color-green-light: #5a9463;
-  --color-green-muted: #e8f0e9;
-  --color-green-pale: #f2f7f2;
-  --color-cream: #faf8f5;
-  --color-greige: #e8e4dc;
+  --color-green-light: #4d7d54;
+  --color-green-muted: #edf5ee;
+  --color-green-pale: #f7fbf7;
+  --color-cream: #ffffff;
+  --color-greige: #d9e4da;
+  --color-charcoal: #3d3b3a;
 
-  --font-display: 'La Luxe Script', 'Great Vibes', cursive;
+  --font-display: 'La Luxe Script', cursive;
   --font-body: 'Crimson Pro', Georgia, serif;
+
+  /* Non-linear easing curves */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-drawer: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+html {
+  overflow-x: hidden;
 }
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-cream);
+  background-color: #ffffff;
+  color: var(--color-charcoal);
+  overflow-x: hidden;
+}
+
+.wedding-paper {
+  position: relative;
+  isolation: isolate;
+  background-color: #ffffff;
+  background-image: url('/wedding-assets/background.svg');
+  background-position: center top;
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+
+.hero-floral,
+.floral-card,
+.floral-panel,
+.floral-heading,
+.day-floral,
+.location-floral,
+.footer-floral {
+  position: relative;
+}
+
+.day-floral,
+.location-floral,
+.footer-floral {
+  overflow: hidden;
+}
+
+.hero-floral {
+  overflow: visible;
+}
+
+.tulip-card::before,
+.ceremony-location-card::before,
+.dinner-location-card::before,
+.day-floral::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.hero-top-flower,
+.hero-bottom-flower {
+  display: block;
+  flex: none;
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.hero-top-flower {
+  width: min(94vw, 48rem);
+  height: clamp(8rem, 14vw, 12rem);
+  margin-top: clamp(2rem, 4vw, 4rem);
+  margin-bottom: clamp(-4rem, -6vw, -2.5rem);
+  background-image: none;
+}
+
+.hero-top-flower::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(34rem, 82vw, 58rem);
+  height: clamp(34rem, 82vw, 58rem);
+  background-image: url('/wedding-assets/vertical-flower.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  transform: translate(calc(-50% + 55px), -50%) rotate(90deg);
+  transform-origin: center;
+}
+
+.hero-bottom-flower {
+  display: none;
+  width: clamp(18rem, 38vw, 30rem);
+  height: clamp(9rem, 18vw, 14rem);
+  margin-top: clamp(1.5rem, 3vw, 2.25rem);
+  margin-bottom: clamp(-3.5rem, -5vw, -1.75rem);
+  background-image: none;
+  transform: rotate(-7deg);
+}
+
+.hero-bottom-flower::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 210%;
+  height: 210%;
+  background-image: url('/wedding-assets/rose.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  transform: translate(-50%, -50%);
+}
+
+.hero-floral > *,
+.floral-card > *,
+.floral-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tulip-card,
+.location-card,
+.ceremony-location-card,
+.dinner-location-card {
+  overflow: hidden;
+}
+
+.tulip-card::before,
+.ceremony-location-card::before,
+.dinner-location-card::before {
+  z-index: 0;
+  opacity: 1;
+}
+
+.tulip-card::before {
+  left: auto;
+  right: auto;
+  left: -1rem;
+  top: calc(50% + 20px);
+  width: 16rem;
+  height: 14rem;
+  background-image: url('/wedding-assets/tulips.svg');
+  transform: translateY(-50%) rotate(-8deg);
+}
+
+.dinner-location-card::before {
+  background-image: url('/wedding-assets/big-flower.svg');
+  left: auto;
+  right: -6rem;
+  top: 50%;
+  bottom: auto;
+  width: 19rem;
+  height: 19rem;
+  opacity: 0.18;
+  transform: translateY(-50%) rotate(7deg);
+}
+
+.ceremony-location-card::before {
+  background-image: url('/wedding-assets/big-flower.svg');
+  left: auto;
+  right: -6rem;
+  top: 50%;
+  width: 19rem;
+  height: 19rem;
+  opacity: 0.18;
+  transform: translateY(-50%) rotate(187deg);
+}
+
+.day-floral::before {
+  top: calc(-2.25rem + 200px);
+  right: max(-2rem, calc((100vw - 1120px) / 2 - 3rem));
+  z-index: 0;
+  width: clamp(24rem, 48vw, 40rem);
+  height: clamp(24rem, 48vw, 40rem);
+  opacity: 1;
+  background-image: url('/wedding-assets/big-flower.svg');
+  transform: rotate(190deg) scaleX(-1);
+}
+
+.day-floral > *,
+.location-floral > *,
+.footer-floral > * {
+  position: relative;
+  z-index: 1;
+}
+
+.footer-flower-separator {
+  display: inline-block;
+  width: 3.25rem;
+  height: 4.35rem;
+  margin: 0 0.55rem;
+  opacity: 0.99;
+  vertical-align: -1.5rem;
+  background-image: url('/wedding-assets/single-flower.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  transform: rotate(4deg);
+}
+
+@media (max-width: 900px) {
+  .wedding-paper {
+    background-size: auto 100vh;
+  }
+
+  .hero-floral::before {
+    content: none;
+  }
+
+  .hero-floral::after {
+    content: none;
+  }
+
+  .hero-floral .hero-top-flower {
+    display: none !important;
+  }
+
+  .hero-bottom-flower {
+    display: block;
+    width: min(100vw, 26rem);
+    height: 7rem;
+    margin-top: 1rem;
+    margin-bottom: -1.5rem;
+  }
+
+  .hero-bottom-flower::before {
+    width: 210%;
+    height: 210%;
+  }
+
+  .dinner-location-card::before {
+    right: -6.25rem;
+    top: 50%;
+    bottom: auto;
+    width: 18rem;
+    height: 18rem;
+    opacity: 0.16;
+  }
+
+  .ceremony-location-card::before {
+    left: auto;
+    right: -6.25rem;
+    top: 50%;
+    width: 18rem;
+    height: 18rem;
+    opacity: 0.16;
+  }
+
+  .day-floral::before {
+    top: auto;
+    right: -7.5rem;
+    bottom: -3rem;
+    width: 18rem;
+    height: 28rem;
+    opacity: 1;
+    background-image: url('/wedding-assets/vertical-flower.svg');
+    transform: translate(-50px, 50px) rotate(0deg);
+  }
+
+}
+
+/* ── Keyframes ─────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.85; }
+}
+
+/* ── Mount animations (play on element insert) ─────────── */
+.animate-page-in {
+  animation: fade-up 0.75s var(--ease-spring) both;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.85s var(--ease-spring) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.45s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.55s var(--ease-back) both;
+}
+
+/* ── Scroll-reveal base states ──────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.85s var(--ease-spring),
+    transform 0.85s var(--ease-spring);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    opacity 0.7s var(--ease-spring),
+    transform 0.7s var(--ease-back);
+}
+
+.reveal-scale.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Inline data-fetch loader (loading.tsx) ─────────────── */
+.loader-ring {
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--color-greige);
+  border-top-color: var(--color-green);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.loader-text {
+  animation: gentle-pulse 2.2s ease-in-out infinite;
+}
+
+/* ── Full-page overlay loader ───────────────────────────── */
+.loader-overlay-text {
+  /* fade up first, then settle into the pulse loop */
+  animation:
+    fade-up 0.9s var(--ease-spring) both,
+    gentle-pulse 2.4s ease-in-out 0.9s infinite;
+}
+
+.loader-overlay-ring {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-top-color: var(--color-green);
+  border-radius: 50%;
+  animation: spin 0.95s linear infinite;
+}
+
+/* ── Respect reduced-motion preference ──────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .animate-page-in,
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-scale-in,
+  .loader-overlay-text {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .loader-ring {
+    animation: none !important;
+    border-color: var(--color-green) !important;
+  }
+  .loader-text {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ── Envelope / gate animation ──────────────────────────────────────────── */
+
+/* Stacks the envelope and the paper (ghost-letter → invitation card) in the
+   same cell so framer-motion can morph the paper between them in place. */
+.gate-stack {
+  display: grid;
+  place-items: center;
+}
+
+.gate-stack > * {
+  grid-area: 1 / 1;
+}
+
+.envelope-scene {
+  width: min(380px, 90vw);
+  position: relative;
+}
+
+.envelope-body {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  background: #fff;
+  border: 1.5px solid #d9e4da;
+  border-radius: 3px;
+  box-shadow: 0 8px 40px rgba(56, 107, 64, 0.15);
+  perspective: 900px;
+}
+
+/* Decorative side folds */
+.envelope-fold-left {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 52% 45%, 0 100%);
+  background: #edf5ee;
+  z-index: 1;
+}
+
+.envelope-fold-right {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(100% 0, 48% 45%, 100% 100%);
+  background: #edf5ee;
+  z-index: 1;
+}
+
+.envelope-fold-bottom {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 100%, 50% 52%, 100% 100%);
+  background: #f0f7f1;
+  z-index: 2;
+}
+
+/* Ghost letter — sized to match the cutout it used to occupy inside the
+   envelope, but now a sibling of it in .gate-stack so it can morph freely
+   into .invitation-card without being torn out of a disappearing parent. */
+.envelope-ghost-letter {
+  width: calc(min(380px, 90vw) * 0.7);
+  height: calc(min(380px, 90vw) * 0.4);
+  background: #f9fdfA;
+  border: 1px solid #e8f2e9;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+}
+
+.envelope-ghost-line {
+  height: 2px;
+  background: #d9e4da;
+  border-radius: 1px;
+  width: 70%;
+}
+.envelope-ghost-line:nth-child(2) { width: 85%; }
+.envelope-ghost-line:nth-child(3) { width: 55%; }
+
+/* Flap */
+.envelope-flap-wrap {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: -1px;
+  height: 52%;
+  transform-origin: top center;
+  z-index: 10;
+}
+
+.envelope-flap-shape {
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: #fff;
+  border-left: 1.5px solid #d9e4da;
+  border-right: 1.5px solid #d9e4da;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.envelope-flap-wrap.is-opening {
+  animation: envelopeFlap 1.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.envelope-wax-seal {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: clamp(11px, 2.5vw, 13px);
+  color: #386b40;
+  letter-spacing: 0.12em;
+  opacity: 0.75;
+  user-select: none;
+}
+
+@keyframes envelopeFlap {
+  0%   { transform: rotateX(0deg); }
+  100% { transform: rotateX(-168deg); }
+}
+
+/* Invitation card (the "letter") */
+.invitation-card {
+  width: min(380px, 90vw);
+  background: #fff;
+  border: 1.5px solid #d9e4da;
+  border-radius: 3px;
+  padding: 2rem 2.5rem 2.5rem;
+  box-shadow: 0 6px 32px rgba(56, 107, 64, 0.12);
+  overflow: hidden;
 }

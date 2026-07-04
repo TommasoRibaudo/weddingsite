@@ -1,5 +1,5 @@
 import { getSession } from '@/lib/session';
-import { galleryIsOpen } from '@/lib/gallery-window';
+import { isGalleryOpenNow } from '@/lib/gallery-override';
 import { adminSupabase } from '@/lib/supabase/admin';
 import sharp from 'sharp';
 import { randomUUID } from 'crypto';
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   if (!session.access) {
     return Response.json({ error: 'Unauthenticated.' }, { status: 401 });
   }
-  if (!galleryIsOpen() && !session.isAdmin) {
+  if (!(await isGalleryOpenNow()) && !session.isAdmin) {
     return Response.json({ error: 'Gallery is not open yet.' }, { status: 403 });
   }
 
@@ -92,12 +92,15 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Failed to upload image.' }, { status: 500 });
   }
 
-  const { error: dbError } = await adminSupabase.from('photos').insert({
+  const photoInsert = {
     id: photoId,
     storage_path: originalPath,
     thumbnail_path: thumbnailPath,
     uploaded_by: session.guestName,
-  } as any);
+    body: null,
+  } as never;
+
+  const { error: dbError } = await adminSupabase.from('photos').insert(photoInsert);
 
   if (dbError) {
     return Response.json({ error: 'Failed to save photo record.' }, { status: 500 });

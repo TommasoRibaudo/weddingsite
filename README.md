@@ -44,6 +44,33 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   NEXT_PUBLIC_SUPABASE_URL=<from Supabase dashboard>
   NEXT_PUBLIC_SUPABASE_ANON_KEY=<from Supabase dashboard>
   SUPABASE_SERVICE_ROLE_KEY=<from Supabase dashboard>
+  GOOGLE_MYMAPS_GIFTS_EMBED_URL=<Google My Maps embed URL, e.g. https://www.google.com/maps/d/embed?mid=...>
 
   La Luxe Script font: place the .woff2 file at public/fonts/la-luxe-script.woff2. Until then, Great Vibes (Google
   Fonts) is the active fallback.
+
+## Supabase setup
+
+Run `supabase/schema.sql` in the Supabase SQL editor. It creates the app tables:
+
+- `gifts`
+- `photos`
+- `comments`
+- `menu_responses`
+
+It also creates/updates the private `wedding-photos` storage bucket used by the gallery.
+
+## Testing
+
+Automated tests cover the practical baseline:
+
+```bash
+npm run test
+npm run test:watch
+npm run test:e2e
+npm run test:all
+```
+
+- `npm run test` runs Vitest unit and component tests with mocked session, Supabase, and Next.js server helpers.
+- `npm run test:e2e` runs Playwright smoke tests and starts the Next.js dev server automatically. If `TEST_GUEST_PASSWORD` and `TEST_ADMIN_PASSWORD` are set, the broader authenticated E2E suite is enabled too.
+- Full Supabase-backed flows such as real photo uploads, gift reservations, and admin moderation remain covered by `MANUAL_TESTS.md`.

@@ -1,15 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from './database.types';
 
-let _client: ReturnType<typeof createClient> | undefined;
+type AdminSupabaseClient = SupabaseClient<Database>;
+
+let _client: AdminSupabaseClient | undefined;
 
 function getInstance() {
-  return (_client ??= createClient(
+  return (_client ??= createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   ));
 }
 
-export const adminSupabase = new Proxy({} as ReturnType<typeof createClient>, {
+export const adminSupabase = new Proxy({} as AdminSupabaseClient, {
   get(_, key) {
     return Reflect.get(getInstance(), key);
   },
