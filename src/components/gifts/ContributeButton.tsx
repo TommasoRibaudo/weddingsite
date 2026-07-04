@@ -6,22 +6,18 @@ import { useLanguage } from '@/components/LanguageProvider';
 
 type Status = 'idle' | 'pending' | 'done' | 'error';
 
-export default function ContributeButton({ giftId, maxAmount }: { giftId: string; maxAmount: number }) {
+export default function ContributeButton({ giftId }: { giftId: string }) {
   const { t } = useLanguage();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<Status>('idle');
-  const [amount, setAmount] = useState(String(maxAmount));
+  const [amount, setAmount] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   function handleContribute() {
     const val = Math.round(parseFloat(amount));
     if (!val || val <= 0) {
       setErrorMsg(t.gifts.invalidAmount);
-      return;
-    }
-    if (val > maxAmount) {
-      setErrorMsg(t.gifts.exceedsRemaining);
       return;
     }
     setErrorMsg('');
@@ -53,7 +49,6 @@ export default function ContributeButton({ giftId, maxAmount }: { giftId: string
           <input
             type="number"
             min={1}
-            max={maxAmount}
             step={1}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}

@@ -1,5 +1,6 @@
 'use client';
 import Image from 'next/image';
+import { useState } from 'react';
 import { Gift as GiftIcon } from 'lucide-react';
 import ReserveButton from './ReserveButton';
 import UnReserveButton from './UnReserveButton';
@@ -24,6 +25,8 @@ export type Gift = {
   created_at: string;
   divideable: boolean;
   gift_contributions?: GiftContribution[];
+  fundingPercent?: number;
+  viewerHasContribution?: boolean;
 };
 
 function formatPrice(price: number) {
@@ -31,7 +34,14 @@ function formatPrice(price: number) {
 }
 
 export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isAdmin: boolean; guestName: string }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
+  const hasLongDescription = (gift.description?.length ?? 0) > 140;
+  const descriptionClass = isDescriptionExpanded || !hasLongDescription ? '' : 'line-clamp-2';
+  const descriptionToggleLabel = isDescriptionExpanded
+    ? locale === 'it' ? 'Mostra meno' : 'Ver menos'
+    : locale === 'it' ? 'Leggi tutto' : 'Leer más';
 
   const contributions = gift.gift_contributions ?? [];
   const contributors = contributions.reduce<{ name: string; amount: number }[]>((acc, contribution) => {
@@ -44,23 +54,20 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
     return acc;
   }, []);
   const totalContributed = contributions.reduce((sum, c) => sum + c.amount, 0);
-  const isFullyFunded = gift.divideable && gift.price !== null && totalContributed >= gift.price;
-  const remaining = gift.divideable && gift.price !== null ? Math.max(0, gift.price - totalContributed) : 0;
-  const fundedPct = gift.divideable && gift.price ? Math.min(100, (totalContributed / gift.price) * 100) : 0;
+  const fundedPct = gift.fundingPercent ?? (gift.divideable && gift.price ? Math.min(100, (totalContributed / gift.price) * 100) : 0);
+  const isFullyFunded = gift.divideable && fundedPct >= 100;
   const myTotal = contributions
     .filter((c) => c.contributed_by === guestName)
     .reduce((sum, c) => sum + c.amount, 0);
+  const viewerHasContribution = gift.viewerHasContribution ?? myTotal > 0;
+  const canContribute = gift.divideable && (gift.price !== null || gift.fundingPercent !== undefined);
 
   const isReserved = !gift.divideable && gift.reserved_by !== null;
   const isMine = !gift.divideable && !!guestName && gift.reserved_by === guestName;
   const isDimmed = (isReserved && !isMine) || isFullyFunded;
-  const statusBadge = gift.divideable ? (
-    <span className={`pointer-events-none absolute top-3 right-3 z-20 max-w-[calc(100%-1.5rem)] truncate rounded-full px-3 py-1 text-center font-body text-xs font-semibold shadow-sm ${
-      isFullyFunded
-        ? 'bg-green text-white'
-        : 'border border-green/20 bg-green-pale text-green'
-    }`}>
-      {isFullyFunded ? t.gifts.fullyFunded : t.gifts.divideable}
+  const statusBadge = gift.divideable && isFullyFunded ? (
+    <span className="pointer-events-none absolute top-3 right-3 z-20 max-w-[calc(100%-1.5rem)] truncate rounded-full bg-green px-3 py-1 text-center font-body text-xs font-semibold text-white shadow-sm">
+      {t.gifts.fullyFunded}
     </span>
   ) : isReserved ? (
     <span className="pointer-events-none absolute top-3 right-3 z-20 max-w-[calc(100%-1.5rem)] truncate rounded-full bg-green px-3 py-1 text-center font-body text-xs font-semibold text-white shadow-sm">
@@ -88,13 +95,27 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
       <div className="flex flex-col flex-1 p-5 gap-2">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-body font-semibold text-charcoal text-lg leading-tight">{gift.name}</h3>
-          {gift.price !== null && (
+          {gift.price !== null && (!gift.divideable || isAdmin) && (
             <span className="font-body text-green font-semibold text-sm whitespace-nowrap">{formatPrice(gift.price)}</span>
           )}
         </div>
 
         {gift.description && (
-          <p className="font-body text-charcoal/70 text-sm line-clamp-2 leading-snug">{gift.description}</p>
+          <div className="space-y-1">
+            <p className={`font-body text-charcoal/70 text-sm leading-snug ${descriptionClass}`}>
+              {gift.description}
+            </p>
+            {hasLongDescription && (
+              <button
+                type="button"
+                aria-expanded={isDescriptionExpanded}
+                onClick={() => setIsDescriptionExpanded((expanded) => !expanded)}
+                className="font-body text-sm font-semibold text-green hover:underline"
+              >
+                {descriptionToggleLabel}
+              </button>
+            )}
+          </div>
         )}
 
         {gift.external_link && (
@@ -114,25 +135,26 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
           </p>
         )}
 
-        {gift.divideable && gift.price !== null && (
+        {canContribute && (
           <div className="space-y-1.5">
-            <p className="font-body text-xs text-gray-400 italic leading-relaxed">{t.gifts.groupGiftExplain}</p>
-            <div className="flex justify-between font-body text-xs text-gray-500">
-              <span>{formatPrice(totalContributed)} {t.gifts.funded}</span>
-              <span>{formatPrice(remaining)} {t.gifts.remaining}</span>
-            </div>
+            {isAdmin && gift.price !== null && (
+              <div className="flex justify-between font-body text-xs text-gray-500">
+                <span>{formatPrice(totalContributed)} {t.gifts.funded}</span>
+                <span>{formatPrice(Math.max(0, gift.price - totalContributed))} {t.gifts.remaining}</span>
+              </div>
+            )}
             <div className="w-full bg-greige rounded-full h-1.5">
               <div
                 className="bg-green rounded-full h-1.5 transition-all duration-300"
                 style={{ width: `${fundedPct}%` }}
               />
             </div>
-            {myTotal > 0 && (
+            {isAdmin && myTotal > 0 && (
               <p className="font-body text-xs text-green font-medium">
                 {t.gifts.yourContribution} {formatPrice(myTotal)}
               </p>
             )}
-            {contributors.length > 0 && (
+            {isAdmin && contributors.length > 0 && (
               <div className="rounded-md border border-greige bg-green-pale/30 px-3 py-2">
                 <p className="font-body text-xs font-semibold text-charcoal">{t.gifts.contributors}</p>
                 <ul className="mt-1 space-y-1">
@@ -157,12 +179,10 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
 
         <div className="pt-2 border-t border-greige flex items-center justify-between gap-2">
           {gift.divideable ? (
-            isFullyFunded ? (
-              <span className="font-body text-sm text-gray-400 italic">{t.gifts.fullyFunded}</span>
-            ) : gift.price !== null ? (
+            canContribute ? (
               <div className="w-full space-y-2">
-                <ContributeButton giftId={gift.id} maxAmount={remaining} />
-                {myTotal > 0 && <WithdrawContributionButton giftId={gift.id} />}
+                <ContributeButton giftId={gift.id} />
+                {viewerHasContribution && <WithdrawContributionButton giftId={gift.id} />}
               </div>
             ) : null
           ) : isMine ? (

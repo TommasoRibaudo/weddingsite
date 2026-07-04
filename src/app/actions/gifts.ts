@@ -24,15 +24,6 @@ export async function contributeToGift(giftId: string, amount: number) {
   if (!gift.divideable) return { error: 'This gift does not support group contributions.' };
   if (!gift.price || gift.price <= 0) return { error: 'This gift has no price set.' };
 
-  const { data: contribData } = await adminSupabase
-    .from('gift_contributions')
-    .select('amount')
-    .eq('gift_id', giftId);
-
-  const totalContributed = ((contribData ?? []) as { amount: number }[]).reduce((sum, c) => sum + c.amount, 0);
-  const remaining = gift.price - totalContributed;
-
-  if (parsedAmount > remaining) return { error: 'Amount exceeds remaining balance.' };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (adminSupabase.from('gift_contributions') as any).insert({

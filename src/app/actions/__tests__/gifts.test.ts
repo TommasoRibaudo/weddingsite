@@ -28,14 +28,6 @@ function giftSelectResult(data: unknown) {
     single: vi.fn().mockResolvedValue({ data }),
   };
 }
-
-function contributionSelectResult(data: unknown[]) {
-  return {
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockResolvedValue({ data }),
-  };
-}
-
 function insertResult(error: unknown = null) {
   return {
     insert: vi.fn().mockResolvedValue({ error }),
@@ -66,23 +58,20 @@ describe('gift actions', () => {
     expect(from).not.toHaveBeenCalled();
   });
 
-  it('rejects contributions above the remaining gift balance', async () => {
+  it('allows contributions above the remaining gift balance', async () => {
     from
       .mockReturnValueOnce(giftSelectResult({ id: 'gift-1', price: 100, divideable: true }))
-      .mockReturnValueOnce(contributionSelectResult([{ amount: 80 }]));
+      .mockReturnValueOnce(insertResult());
     const { contributeToGift } = await import('@/app/actions/gifts');
 
-    await expect(contributeToGift('gift-1', 25)).resolves.toEqual({
-      error: 'Amount exceeds remaining balance.',
-    });
+    await expect(contributeToGift('gift-1', 125)).resolves.toEqual({ ok: true });
     expect(from).toHaveBeenCalledTimes(2);
-    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(revalidatePath).toHaveBeenCalledWith('/gifts');
   });
 
   it('stores a valid group gift contribution and revalidates gifts', async () => {
     from
       .mockReturnValueOnce(giftSelectResult({ id: 'gift-1', price: 100, divideable: true }))
-      .mockReturnValueOnce(contributionSelectResult([{ amount: 40 }]))
       .mockReturnValueOnce(insertResult());
     const { contributeToGift } = await import('@/app/actions/gifts');
 

@@ -1,4 +1,5 @@
 import GuestNav from '@/components/GuestNav';
+import HomeFirstLoginNotice from '@/components/HomeFirstLoginNotice';
 import PageWrapper from '@/components/PageWrapper';
 import PageLoader from '@/components/PageLoader';
 import { getMyDietaryResponses } from '@/app/actions/menu';
@@ -14,6 +15,10 @@ export default async function GuestLayout({ children }: { children: React.ReactN
     <div className="wedding-paper min-h-screen bg-cream flex flex-col">
       <PageLoader />
       <GuestNav guestName={session.guestName ?? ''} dietaryComplete={dietaryResponses.length > 0} />
+      <HomeFirstLoginNotice
+        guestName={session.guestName ?? ''}
+        dietaryComplete={dietaryResponses.length > 0}
+      />
       <main className="flex-1 pt-14">
         <PageWrapper>{children}</PageWrapper>
       </main>
