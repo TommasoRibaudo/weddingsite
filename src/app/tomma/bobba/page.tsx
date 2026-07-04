@@ -15,15 +15,32 @@ import { galleryIsOpen } from '@/lib/gallery-window';
 
 export const dynamic = 'force-dynamic';
 
+async function loadAdminGifts(): Promise<AdminGift[]> {
+  const ordered = await adminSupabase
+    .from('gifts')
+    .select('id, name, description, image_url, external_link, price, reserved_by, reserved_at, created_at, sort_order, divideable, gift_contributions(id, contributed_by, amount, created_at)')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
+
+  if (!ordered.error) return (ordered.data ?? []) as AdminGift[];
+
+  const fallback = await adminSupabase
+    .from('gifts')
+    .select('id, name, description, image_url, external_link, price, reserved_by, reserved_at, created_at, divideable, gift_contributions(id, contributed_by, amount, created_at)')
+    .order('created_at', { ascending: true });
+
+  return ((fallback.data ?? []) as Omit<AdminGift, 'sort_order'>[]).map((gift, index) => ({
+    ...gift,
+    sort_order: index,
+  }));
+}
+
 export default async function AdminPage() {
   const session = await getSession();
   if (!session.isAdmin) redirect('/tomma/bobba/login');
 
   const [giftsRes, photosRes, commentsRes, dietaryResponses, guestsRes, profilesRes, galleryOverride] = await Promise.all([
-    adminSupabase
-      .from('gifts')
-      .select('id, name, description, image_url, external_link, price, reserved_by, reserved_at, created_at, divideable, gift_contributions(id, contributed_by, amount, created_at)')
-      .order('created_at'),
+    loadAdminGifts(),
     adminSupabase
       .from('photos')
       .select('id, storage_path, thumbnail_path, uploaded_by, body, created_at')
@@ -44,7 +61,7 @@ export default async function AdminPage() {
     getGalleryOverride(),
   ]);
 
-  const gifts: AdminGift[] = giftsRes.data ?? [];
+  const gifts: AdminGift[] = giftsRes;
   const photos: AdminPhoto[] = photosRes.data ?? [];
   const comments: AdminComment[] = commentsRes.data ?? [];
   const guests: AdminGuest[] = guestsRes.data ?? [];

@@ -23,6 +23,7 @@ export type Gift = {
   price: number | null;
   reserved_by: string | null;
   created_at: string;
+  sort_order: number;
   divideable: boolean;
   gift_contributions?: GiftContribution[];
   fundingPercent?: number;

@@ -2,9 +2,9 @@
 
 import { Fragment, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Pencil, Trash2, X } from 'lucide-react';
 import { unReserveGift } from '@/app/actions/gifts';
-import { addGift, deleteGift, updateGift, removeContribution } from '@/app/actions/admin';
+import { addGift, deleteGift, updateGift, removeContribution, reorderGift } from '@/app/actions/admin';
 
 export type AdminGiftContribution = {
   id: string;
@@ -23,6 +23,7 @@ export type AdminGift = {
   reserved_by: string | null;
   reserved_at: string | null;
   created_at: string;
+  sort_order: number;
   divideable: boolean;
   gift_contributions?: AdminGiftContribution[];
 };
@@ -93,6 +94,16 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
     });
   }
 
+  function handleReorder(giftId: string, direction: 'up' | 'down') {
+    setError(null);
+    setWorkingId(giftId);
+    startTransition(async () => {
+      const result = await reorderGift(giftId, direction);
+      if (result && 'error' in result) setError(result.error ?? null);
+      refreshAfterWork();
+    });
+  }
+
   function handleAddGift(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -142,6 +153,7 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
           <table className="w-full font-body text-sm border-collapse">
             <thead>
               <tr className="border-b border-greige text-left">
+                <th className="py-2 pr-4 font-semibold text-gray-700">Order</th>
                 <th className="py-2 pr-4 font-semibold text-gray-700">Name</th>
                 <th className="py-2 pr-4 font-semibold text-gray-700">Price</th>
                 <th className="py-2 pr-4 font-semibold text-gray-700">Status</th>
@@ -151,7 +163,7 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
               </tr>
             </thead>
             <tbody>
-              {gifts.map((gift) => {
+              {gifts.map((gift, index) => {
                 const isWorking = isPending && workingId === gift.id;
                 const isEditing = editingId === gift.id;
                 const contributions = gift.gift_contributions ?? [];
@@ -162,6 +174,28 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
                 return (
                   <Fragment key={gift.id}>
                     <tr className="border-b border-greige hover:bg-green-pale/50 transition-colors">
+                      <td className="py-2 pr-4">
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            aria-label={`Move ${gift.name} up`}
+                            onClick={() => handleReorder(gift.id, 'up')}
+                            disabled={isPending || index === 0}
+                            className="p-1 text-gray-400 hover:text-green transition-colors disabled:opacity-25 disabled:hover:text-gray-400"
+                          >
+                            <ChevronUp size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Move ${gift.name} down`}
+                            onClick={() => handleReorder(gift.id, 'down')}
+                            disabled={isPending || index === gifts.length - 1}
+                            className="p-1 text-gray-400 hover:text-green transition-colors disabled:opacity-25 disabled:hover:text-gray-400"
+                          >
+                            <ChevronDown size={15} />
+                          </button>
+                        </div>
+                      </td>
                       <td className="py-2 pr-4 text-gray-800">{gift.name}</td>
                       <td className="py-2 pr-4 text-gray-600">
                         {gift.price !== null ? formatPrice(gift.price) : '-'}
@@ -237,7 +271,7 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
 
                     {isEditing && (
                       <tr className="border-b border-greige bg-white">
-                        <td colSpan={6} className="p-4 space-y-4">
+                        <td colSpan={7} className="p-4 space-y-4">
                           <form onSubmit={handleUpdateGift} className="grid gap-4 md:grid-cols-2">
                             <input type="hidden" name="giftId" value={gift.id} />
                             <label className="font-body text-sm text-gray-700">

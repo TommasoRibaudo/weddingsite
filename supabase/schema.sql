@@ -22,6 +22,17 @@ alter table public.gifts add column if not exists price numeric(10, 2);
 alter table public.gifts add column if not exists reserved_by text;
 alter table public.gifts add column if not exists reserved_at timestamptz;
 alter table public.gifts add column if not exists created_at timestamptz not null default now();
+alter table public.gifts add column if not exists sort_order integer not null default 0;
+
+with ordered_gifts as (
+  select id, row_number() over (order by sort_order asc, created_at asc, id asc) - 1 as position
+  from public.gifts
+)
+update public.gifts
+set sort_order = ordered_gifts.position
+from ordered_gifts
+where public.gifts.id = ordered_gifts.id
+  and public.gifts.sort_order = 0;
 
 create table if not exists public.photos (
   id uuid primary key default gen_random_uuid(),

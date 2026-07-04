@@ -53,6 +53,7 @@ export type Database = {
           reserved_by: string | null;
           reserved_at: string | null;
           created_at: string;
+          sort_order: number;
           divideable: boolean;
         },
         {
@@ -65,6 +66,7 @@ export type Database = {
           reserved_by?: string | null;
           reserved_at?: string | null;
           created_at?: string;
+          sort_order?: number;
           divideable?: boolean;
         }
       >;

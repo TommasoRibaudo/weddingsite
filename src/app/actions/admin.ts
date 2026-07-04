@@ -96,9 +96,17 @@ export async function addGift(formData: FormData) {
   const price = formData.get('price') ? Number(formData.get('price')) : null;
   const image_url = (formData.get('image_url') as string)?.trim() || null;
   const divideable = formData.get('divideable') === 'on';
+  const { data: lastGift } = await adminSupabase
+    .from('gifts')
+    .select('sort_order')
+    .order('sort_order', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const sort_order = ((lastGift as { sort_order: number } | null)?.sort_order ?? -1) + 1;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (adminSupabase.from('gifts') as any).insert({ name, description, external_link, price, image_url, divideable });
+  const { error } = await (adminSupabase.from('gifts') as any).insert({ name, description, external_link, price, image_url, divideable, sort_order });
 
   if (error) return { error: 'Failed to add gift.' };
 
@@ -143,6 +151,41 @@ export async function removeContribution(contributionId: string) {
   if (!session.isAdmin) return { error: 'Unauthorised.' };
 
   await adminSupabase.from('gift_contributions').delete().eq('id', contributionId);
+
+  revalidatePath('/gifts');
+  revalidatePath('/tomma/bobba');
+  return { ok: true };
+}
+
+export async function reorderGift(giftId: string, direction: 'up' | 'down') {
+  const session = await getSession();
+  if (!session.isAdmin) return { error: 'Unauthorised.' };
+  if (!giftId) return { error: 'Gift is required.' };
+  if (direction !== 'up' && direction !== 'down') return { error: 'Invalid direction.' };
+
+  const { data, error: loadError } = await adminSupabase
+    .from('gifts')
+    .select('id, sort_order, created_at')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
+
+  if (loadError) return { error: 'Failed to load gifts.' };
+
+  const gifts = (data ?? []) as { id: string; sort_order: number; created_at: string }[];
+  const currentIndex = gifts.findIndex((gift) => gift.id === giftId);
+  if (currentIndex === -1) return { error: 'Gift not found.' };
+
+  const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+  if (targetIndex < 0 || targetIndex >= gifts.length) return { ok: true };
+
+  const reordered = [...gifts];
+  [reordered[currentIndex], reordered[targetIndex]] = [reordered[targetIndex], reordered[currentIndex]];
+
+  const updates = reordered.map((gift, index) =>
+    adminSupabase.from('gifts').update({ sort_order: index } as never).eq('id', gift.id)
+  );
+  const results = await Promise.all(updates);
+  if (results.some((result) => result.error)) return { error: 'Failed to reorder gift.' };
 
   revalidatePath('/gifts');
   revalidatePath('/tomma/bobba');

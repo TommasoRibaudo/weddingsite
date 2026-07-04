@@ -22,6 +22,26 @@ function getGiftMapEmbedUrl() {
   }
 }
 
+async function loadGifts(): Promise<Gift[]> {
+  const ordered = await adminSupabase
+    .from('gifts')
+    .select('id, name, description, image_url, external_link, price, reserved_by, created_at, sort_order, divideable, gift_contributions(id, contributed_by, amount)')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
+
+  if (!ordered.error) return (ordered.data ?? []) as Gift[];
+
+  const fallback = await adminSupabase
+    .from('gifts')
+    .select('id, name, description, image_url, external_link, price, reserved_by, created_at, divideable, gift_contributions(id, contributed_by, amount)')
+    .order('created_at', { ascending: true });
+
+  return ((fallback.data ?? []) as Omit<Gift, 'sort_order'>[]).map((gift, index) => ({
+    ...gift,
+    sort_order: index,
+  }));
+}
+
 export default async function GiftsPage() {
   if (isWeddingDay()) redirect('/home');
 
@@ -30,12 +50,7 @@ export default async function GiftsPage() {
   const guestName = session.guestName ?? '';
   const giftMapEmbedUrl = getGiftMapEmbedUrl();
 
-  const { data } = await adminSupabase
-    .from('gifts')
-    .select('id, name, description, image_url, external_link, price, reserved_by, created_at, divideable, gift_contributions(id, contributed_by, amount)')
-    .order('created_at', { ascending: true });
-
-  const gifts = ((data ?? []) as Gift[]).map((gift) => {
+  const gifts = (await loadGifts()).map((gift) => {
     if (isAdmin) return gift;
 
     const contributions = gift.gift_contributions ?? [];
