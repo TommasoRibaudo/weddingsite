@@ -95,7 +95,7 @@ export default function DietaryForm({ existing }: { existing: DietaryResponse[] 
       <form onSubmit={handleSubmit} className="space-y-4">
         {people.map((person, index) => (
           <div key={person.uid} className="border border-greige rounded-xl p-5 space-y-4">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <label className="font-body font-semibold text-charcoal/80 shrink-0 w-14">
                 {t.menu.personNameLabel}
               </label>
@@ -105,13 +105,13 @@ export default function DietaryForm({ existing }: { existing: DietaryResponse[] 
                 onChange={(e) => update(index, { name: e.target.value })}
                 placeholder={t.menu.personNamePlaceholder}
                 maxLength={50}
-                className="flex-1 border border-greige rounded-lg px-3 py-2 font-body text-charcoal bg-white focus:outline-none focus:ring-2 focus:ring-green"
+                className="order-3 w-full min-w-0 border border-greige rounded-lg px-3 py-2 font-body text-charcoal bg-white focus:outline-none focus:ring-2 focus:ring-green sm:order-none sm:flex-1"
               />
               {people.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removePerson(index)}
-                  className="font-body text-sm text-red-500 hover:text-red-700 transition-colors shrink-0"
+                  className="ml-auto shrink-0 rounded-md px-2 py-1 font-body text-sm leading-none text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
                 >
                   {t.menu.removePerson}
                 </button>

@@ -34,6 +34,15 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
   const { t } = useLanguage();
 
   const contributions = gift.gift_contributions ?? [];
+  const contributors = contributions.reduce<{ name: string; amount: number }[]>((acc, contribution) => {
+    const existing = acc.find((item) => item.name === contribution.contributed_by);
+    if (existing) {
+      existing.amount += contribution.amount;
+    } else {
+      acc.push({ name: contribution.contributed_by, amount: contribution.amount });
+    }
+    return acc;
+  }, []);
   const totalContributed = contributions.reduce((sum, c) => sum + c.amount, 0);
   const isFullyFunded = gift.divideable && gift.price !== null && totalContributed >= gift.price;
   const remaining = gift.divideable && gift.price !== null ? Math.max(0, gift.price - totalContributed) : 0;
@@ -122,6 +131,24 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
               <p className="font-body text-xs text-green font-medium">
                 {t.gifts.yourContribution} {formatPrice(myTotal)}
               </p>
+            )}
+            {contributors.length > 0 && (
+              <div className="rounded-md border border-greige bg-green-pale/30 px-3 py-2">
+                <p className="font-body text-xs font-semibold text-charcoal">{t.gifts.contributors}</p>
+                <ul className="mt-1 space-y-1">
+                  {contributors.map((contributor) => (
+                    <li
+                      key={contributor.name}
+                      className="flex items-baseline justify-between gap-3 font-body text-xs text-charcoal/70"
+                    >
+                      <span className="min-w-0 truncate">{contributor.name}</span>
+                      <span className="shrink-0 font-semibold text-green">
+                        {formatPrice(contributor.amount)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
           </div>
         )}

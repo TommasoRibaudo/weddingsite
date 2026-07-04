@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Check, ChevronDown, LogOut, Pencil, UserCircle, UserRound, X } from 'lucide-react';
+import { Check, ChevronDown, LogOut, Menu, Pencil, UserCircle, UserRound, X } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
 import { changeGuestName } from '@/app/actions/auth';
 import { isWeddingDay, wedding } from '@/lib/wedding-config';
@@ -18,10 +18,10 @@ const navLinks = [
 
 const guestRoutePrefixes = ['/home', '/menu', '/gifts', '/gallery'];
 
-function MenuAlertBadge({ label }: { label: string }) {
+function MenuAlertBadge({ label, className = '' }: { label: string; className?: string }) {
   return (
     <span
-      className="grid size-4 shrink-0 place-items-center rounded-full bg-red-600 text-[10px] font-bold leading-none text-white"
+      className={`grid size-4 shrink-0 place-items-center rounded-full bg-red-600 text-[10px] font-bold leading-none text-white ${className}`}
       aria-label={label}
       title={label}
     >
@@ -183,7 +183,12 @@ export default function GuestNav({
                   }`}
                 >
                   {t.nav[labelKey]}
-                  {showAlert && <MenuAlertBadge label={t.nav.foodPreferencesNeeded} />}
+                  {showAlert && (
+                    <MenuAlertBadge
+                      label={t.nav.foodPreferencesNeeded}
+                      className="absolute -bottom-1 -right-2"
+                    />
+                  )}
                   <span
                     className="absolute bottom-0 left-0 right-0 h-px bg-green origin-left transition-transform duration-500 ease-[var(--ease-spring)]"
                     style={{ transform: active ? 'scaleX(1)' : 'scaleX(0)' }}
@@ -212,13 +217,17 @@ export default function GuestNav({
           </div>
 
           <button
-            className="shrink-0 md:hidden p-2 text-charcoal/80"
+            className="relative shrink-0 p-2 text-charcoal/80 md:hidden"
             aria-label={t.nav.openMenu}
             onClick={() => setDrawerOpen(true)}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <Menu className="size-6" aria-hidden="true" />
+            {showMenuAlert && (
+              <MenuAlertBadge
+                label={t.nav.foodPreferencesNeeded}
+                className="absolute bottom-1 right-1"
+              />
+            )}
           </button>
         </nav>
       </header>
@@ -273,9 +282,14 @@ export default function GuestNav({
                     transform: active ? 'scaleY(1)' : 'scaleY(0)',
                   }}
                 />
-                <span className="flex items-center gap-2">
+                <span className="relative inline-flex pb-0.5">
                   {t.nav[labelKey]}
-                  {showAlert && <MenuAlertBadge label={t.nav.foodPreferencesNeeded} />}
+                  {showAlert && (
+                    <MenuAlertBadge
+                      label={t.nav.foodPreferencesNeeded}
+                      className="absolute -bottom-1 -right-2"
+                    />
+                  )}
                 </span>
               </Link>
             );
@@ -289,3 +303,4 @@ export default function GuestNav({
     </>
   );
 }
+

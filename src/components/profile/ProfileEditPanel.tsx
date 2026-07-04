@@ -5,6 +5,9 @@ import { updateProfile } from '@/app/actions/profile';
 import GuestAvatar from './GuestAvatar';
 import { useLanguage } from '@/components/LanguageProvider';
 
+const MAX_PROFILE_PHOTO_SIZE = 5 * 1024 * 1024;
+const ACCEPTED_PROFILE_PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic']);
+
 type Props = {
   guestName: string;
   initialBio: string | null;
@@ -32,6 +35,17 @@ export default function ProfileEditPanel({
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!ACCEPTED_PROFILE_PHOTO_TYPES.has(file.type)) {
+      setError('Usa una foto JPEG, PNG, WebP o HEIC.');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > MAX_PROFILE_PHOTO_SIZE) {
+      setError('La foto debe pesar menos de 5 MB.');
+      e.target.value = '';
+      return;
+    }
+    setError(null);
     setPhotoFile(file);
     const url = URL.createObjectURL(file);
     setPhotoPreview(url);
@@ -43,7 +57,10 @@ export default function ProfileEditPanel({
     fd.set('bio', bio);
     if (photoFile) fd.set('photo', photoFile);
     startTransition(async () => {
-      const result = await updateProfile(fd);
+      const result = await updateProfile(fd).catch((err) => {
+        console.error('[ProfileEditPanel] updateProfile failed:', err);
+        return { error: 'No se pudo guardar el perfil. Intentalo de nuevo.' };
+      });
       if (result.error) {
         setError(result.error);
       } else {
