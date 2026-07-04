@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 @font-face {
   font-family: 'La Luxe Script';
@@ -297,7 +297,7 @@ body {
 
 }
 
-/* ── Keyframes ─────────────────────────────────────────── */
+/* -- Keyframes ------------------------------------------- */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -322,7 +322,7 @@ body {
   50%       { opacity: 0.85; }
 }
 
-/* ── Mount animations (play on element insert) ─────────── */
+/* -- Mount animations (play on element insert) ----------- */
 .animate-page-in {
   animation: fade-up 0.75s var(--ease-spring) both;
 }
@@ -339,7 +339,7 @@ body {
   animation: scale-in 0.55s var(--ease-back) both;
 }
 
-/* ── Scroll-reveal base states ──────────────────────────── */
+/* -- Scroll-reveal base states ---------------------------- */
 .reveal {
   opacity: 0;
   transform: translateY(22px);
@@ -366,7 +366,7 @@ body {
   transform: scale(1);
 }
 
-/* ── Inline data-fetch loader (loading.tsx) ─────────────── */
+/* -- Inline data-fetch loader (loading.tsx) --------------- */
 .loader-ring {
   width: 34px;
   height: 34px;
@@ -380,7 +380,24 @@ body {
   animation: gentle-pulse 2.2s ease-in-out infinite;
 }
 
-/* ── Full-page overlay loader ───────────────────────────── */
+/* -- Full-page overlay loader ----------------------------- */
+/* Give the script font enough glyph room on small screens. */
+.loader-script-name {
+  display: inline-block;
+  max-width: min(92vw, 48rem);
+  padding: 0.3em 0.08em 0;
+  font-size: clamp(2.15rem, 9vw, 4.5rem);
+  line-height: 1.42;
+  overflow: visible;
+}
+
+@media (max-width: 640px) {
+  .loader-script-name {
+    max-width: 94vw;
+    font-size: clamp(2.1rem, 13vw, 3.45rem);
+    line-height: 1.5;
+  }
+}
 .loader-overlay-text {
   /* fade up first, then settle into the pulse loop */
   animation:
@@ -397,7 +414,7 @@ body {
   animation: spin 0.95s linear infinite;
 }
 
-/* ── Respect reduced-motion preference ──────────────────── */
+/* -- Respect reduced-motion preference -------------------- */
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .reveal-scale {
@@ -424,9 +441,9 @@ body {
   }
 }
 
-/* ── Envelope / gate animation ──────────────────────────────────────────── */
+/* -- Envelope / gate animation -------------------------------------------- */
 
-/* Stacks the envelope and the paper (ghost-letter → invitation card) in the
+/* Stacks the envelope and the paper (ghost-letter ? invitation card) in the
    same cell so framer-motion can morph the paper between them in place. */
 .gate-stack {
   display: grid;

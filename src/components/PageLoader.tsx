@@ -45,11 +45,9 @@ export default function PageLoader() {
       }}
     >
       <span
-        className="loader-overlay-text font-display select-none"
+        className="loader-script-name loader-overlay-text font-display select-none"
         style={{
           color: '#f5f0ea',
-          fontSize: 'clamp(1.75rem, 8vw, 4.5rem)',
-          lineHeight: 1.2,
         }}
       >
         {wedding.coupleNames}
