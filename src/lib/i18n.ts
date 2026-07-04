@@ -46,7 +46,7 @@ export const translations = {
     home: {
       dateDisplay: 'Sábado, 8 de agosto de 2026',
       ceremony: 'Ceremonia',
-      locations: 'Dove',
+      locations: 'Donde',
       dinner: 'Cena',
       dressCode: 'Código de vestimenta',
       ceremonyLocation: 'Ceremonia: Playa Grande',

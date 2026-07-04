@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Gift as GiftIcon } from 'lucide-react';
 import ReserveButton from './ReserveButton';
 import UnReserveButton from './UnReserveButton';
@@ -37,9 +37,22 @@ function formatPrice(price: number) {
 export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isAdmin: boolean; guestName: string }) {
   const { t, locale } = useLanguage();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isDescriptionTruncated, setIsDescriptionTruncated] = useState(false);
+  const descriptionRef = useRef<HTMLSpanElement>(null);
 
-  const hasLongDescription = (gift.description?.length ?? 0) > 140;
-  const descriptionClass = isDescriptionExpanded || !hasLongDescription ? '' : 'line-clamp-2';
+  useEffect(() => {
+    const el = descriptionRef.current;
+    if (!el || isDescriptionExpanded) return;
+
+    const checkTruncation = () => setIsDescriptionTruncated(el.scrollHeight > el.clientHeight + 1);
+    checkTruncation();
+
+    const observer = new ResizeObserver(checkTruncation);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [gift.description, isDescriptionExpanded]);
+
+  const showDescriptionToggle = isDescriptionTruncated || isDescriptionExpanded;
   const descriptionToggleLabel = isDescriptionExpanded
     ? locale === 'it' ? 'Mostra meno' : 'Ver menos'
     : locale === 'it' ? 'Leggi tutto' : 'Leer más';
@@ -103,18 +116,27 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
 
         {gift.description && (
           <div className="space-y-1">
-            <p className={`font-body text-charcoal/70 text-sm leading-snug ${descriptionClass}`}>
-              {gift.description}
-            </p>
-            {hasLongDescription && (
+            {showDescriptionToggle ? (
               <button
                 type="button"
                 aria-expanded={isDescriptionExpanded}
                 onClick={() => setIsDescriptionExpanded((expanded) => !expanded)}
-                className="font-body text-sm font-semibold text-green hover:underline"
+                className="block w-full text-left"
               >
-                {descriptionToggleLabel}
+                <span
+                  ref={descriptionRef}
+                  className={`font-body text-charcoal/70 text-sm leading-snug ${isDescriptionExpanded ? 'block' : 'line-clamp-2'}`}
+                >
+                  {gift.description}
+                </span>
+                <span className="mt-1 block font-body text-sm font-semibold text-green hover:underline">
+                  {descriptionToggleLabel}
+                </span>
               </button>
+            ) : (
+              <span ref={descriptionRef} className="font-body text-charcoal/70 text-sm leading-snug line-clamp-2">
+                {gift.description}
+              </span>
             )}
           </div>
         )}
