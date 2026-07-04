@@ -116,28 +116,25 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
 
         {gift.description && (
           <div className="space-y-1">
-            {showDescriptionToggle ? (
-              <button
-                type="button"
-                aria-expanded={isDescriptionExpanded}
-                onClick={() => setIsDescriptionExpanded((expanded) => !expanded)}
-                className="block w-full text-left"
+            <button
+              type="button"
+              aria-expanded={showDescriptionToggle ? isDescriptionExpanded : undefined}
+              onClick={() => setIsDescriptionExpanded((expanded) => !expanded)}
+              disabled={!showDescriptionToggle}
+              className="block w-full text-left disabled:cursor-default"
+            >
+              <span
+                ref={descriptionRef}
+                className={`font-body text-charcoal/70 text-sm leading-snug ${isDescriptionExpanded ? 'block' : 'line-clamp-2'}`}
               >
-                <span
-                  ref={descriptionRef}
-                  className={`font-body text-charcoal/70 text-sm leading-snug ${isDescriptionExpanded ? 'block' : 'line-clamp-2'}`}
-                >
-                  {gift.description}
-                </span>
+                {gift.description}
+              </span>
+              {showDescriptionToggle && (
                 <span className="mt-1 block font-body text-sm font-semibold text-green hover:underline">
                   {descriptionToggleLabel}
                 </span>
-              </button>
-            ) : (
-              <span ref={descriptionRef} className="font-body text-charcoal/70 text-sm leading-snug line-clamp-2">
-                {gift.description}
-              </span>
-            )}
+              )}
+            </button>
           </div>
         )}
 
