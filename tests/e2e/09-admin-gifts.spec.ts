@@ -17,7 +17,7 @@ test('admin gift list shows gift names and status columns', async ({ adminPage: 
   await page.goto('/tomma/bobba');
   await expect(page.getByRole('columnheader', { name: 'Name' })).toBeVisible();
   await expect(page.getByRole('columnheader', { name: 'Status' })).toBeVisible();
-  await expect(page.getByRole('columnheader', { name: 'Reserved by' })).toBeVisible();
+  await expect(page.getByRole('columnheader', { name: 'Gifted by' })).toBeVisible();
   await expect(page.getByText('PW Admin Test Gift')).toBeVisible();
 });
 

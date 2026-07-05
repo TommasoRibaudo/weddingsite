@@ -14,22 +14,32 @@ export default function ContributeButton({ giftId }: { giftId: string }) {
   const [amount, setAmount] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  function getErrorMessage(error: string | undefined) {
+    if (error === 'invalid_amount') return t.gifts.invalidAmount;
+    return error ?? t.menu.genericError;
+  }
+
   function handleContribute() {
-    const val = Math.round(parseFloat(amount));
-    if (!val || val <= 0) {
+    const val = Number(amount);
+    if (!Number.isFinite(val) || val <= 0) {
       setErrorMsg(t.gifts.invalidAmount);
       return;
     }
     setErrorMsg('');
     setStatus('pending');
     startTransition(async () => {
-      const result = await contributeToGift(giftId, val);
-      if (result.ok) {
-        setStatus('done');
-        router.refresh();
-      } else {
+      try {
+        const result = await contributeToGift(giftId, val);
+        if (result.ok) {
+          setStatus('done');
+          router.refresh();
+        } else {
+          setStatus('error');
+          setErrorMsg(getErrorMessage(result.error));
+        }
+      } catch {
         setStatus('error');
-        setErrorMsg(result.error ?? t.menu.genericError);
+        setErrorMsg(t.menu.genericError);
       }
     });
   }

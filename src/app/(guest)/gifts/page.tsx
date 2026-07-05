@@ -22,10 +22,14 @@ function getGiftMapEmbedUrl() {
   }
 }
 
-async function loadGifts(): Promise<Gift[]> {
+async function loadGifts(includeContributionAmounts = true): Promise<Gift[]> {
+  const contributionSelect = includeContributionAmounts
+    ? 'gift_contributions(id, contributed_by, amount)'
+    : 'gift_contributions(id, contributed_by)';
+
   const ordered = await adminSupabase
     .from('gifts')
-    .select('id, name, description, image_url, external_link, price, reserved_by, created_at, sort_order, divideable, gift_contributions(id, contributed_by, amount)')
+    .select(`id, name, description, image_url, external_link, price, reserved_by, created_at, sort_order, divideable, ${contributionSelect}`)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true });
 
@@ -33,7 +37,7 @@ async function loadGifts(): Promise<Gift[]> {
 
   const fallback = await adminSupabase
     .from('gifts')
-    .select('id, name, description, image_url, external_link, price, reserved_by, created_at, divideable, gift_contributions(id, contributed_by, amount)')
+    .select(`id, name, description, image_url, external_link, price, reserved_by, created_at, divideable, ${contributionSelect}`)
     .order('created_at', { ascending: true });
 
   return ((fallback.data ?? []) as Omit<Gift, 'sort_order'>[]).map((gift, index) => ({
@@ -51,12 +55,22 @@ export default async function GiftsPage() {
   const giftMapEmbedUrl = getGiftMapEmbedUrl();
 
   const gifts = (await loadGifts()).map((gift) => {
-    if (isAdmin) return gift;
-
     const contributions = gift.gift_contributions ?? [];
-    const contributionTotal = contributions.reduce((sum, contribution) => sum + contribution.amount, 0);
+    const contributionTotal = contributions.reduce((sum, contribution) => sum + (contribution.amount ?? 0), 0);
     const fundingPercent = gift.divideable && gift.price ? Math.min(100, (contributionTotal / gift.price) * 100) : undefined;
     const viewerHasContribution = contributions.some((contribution) => contribution.contributed_by === guestName);
+
+    if (isAdmin) {
+      return {
+        ...gift,
+        fundingPercent,
+        viewerHasContribution,
+        gift_contributions: contributions.map((contribution) => ({
+          id: contribution.id,
+          contributed_by: contribution.contributed_by,
+        })),
+      };
+    }
 
     return {
       ...gift,

@@ -2,6 +2,7 @@ import HeroSection from '@/components/home/HeroSection';
 import DetailsStrip from '@/components/home/DetailsStrip';
 import DayTimeline from '@/components/home/DayTimeline';
 import LocationSection from '@/components/home/LocationSection';
+import ServiceCards from '@/components/home/ServiceCards';
 import { wedding } from '@/lib/wedding-config';
 
 export default function HomePage() {
@@ -22,6 +23,7 @@ export default function HomePage() {
           </div>
         </section>
       )}
+      <ServiceCards />
     </>
   );
 }

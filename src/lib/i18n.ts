@@ -57,6 +57,14 @@ export const translations = {
         "La ceremonia será en Playa Grande, cerca de Green Lapa's Village. Después iremos a Green Lapa's para la cena y el resto de la celebración.",
       parkingNote:
         "El estacionamiento puede ser limitado, así que recomendamos coordinar el transporte con otro invitado cuando sea posible. Si necesitas ayuda, escríbenos directamente; Mi número es +506 6133-0624, el de Meli +506 6202-6203.",
+      serviceCardsEyebrow: 'Sigue explorando',
+      serviceCardsTitle: 'También puedes ir a',
+      serviceCardsAction: 'Abrir',
+      serviceCards: {
+        menu: 'Revisa el menú y completa alergias o restricciones alimentarias.',
+        gifts: 'Encuentra la lista de regalos y elige una etapa de nuestro viaje.',
+        gallery: 'Entra al espacio de fotos para ver o compartir recuerdos del día.',
+      },
       menuReminderTitle: 'Por favor revisa el menú de arriba',
       menuReminderBody:
         'En la esquina de arriba está el botón del menú. Ahí encuentras Menú y Regalos. Por favor entra a Menú ahora y completa tus alergias o restricciones alimentarias lo antes posible.',
@@ -251,6 +259,14 @@ export const translations = {
         "La cerimonia sarà a Playa Grande, vicino a Green Lapa's Village. Poi ci sposteremo a Green Lapa's per la cena e il resto della celebrazione.",
       parkingNote:
         "Il parcheggio potrebbe essere limitato, quindi consigliamo di organizzare il trasporto con un altro invitato quando possibile. Se hai bisogno di aiuto, scrivici direttamente; il mio numero è +506 6133-0624, quello di Meli +506 6202-6203.",
+      serviceCardsEyebrow: 'Continua a esplorare',
+      serviceCardsTitle: 'Puoi anche andare a',
+      serviceCardsAction: 'Apri',
+      serviceCards: {
+        menu: 'Controlla il menu e completa allergie o restrizioni alimentari.',
+        gifts: 'Trova la lista regali e scegli una tappa del nostro viaggio.',
+        gallery: 'Entra nello spazio foto per vedere o condividere ricordi del giorno.',
+      },
       menuReminderTitle: 'Per favore controlla il menu in alto',
       menuReminderBody:
         "Nell'angolo in alto c'è il pulsante del menu. Lì trovi Menu e Regali. Per favore entra in Menu adesso e completa allergie o restrizioni alimentari il prima possibile.",

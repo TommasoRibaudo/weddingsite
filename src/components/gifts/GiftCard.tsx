@@ -11,7 +11,7 @@ import { useLanguage } from '@/components/LanguageProvider';
 export type GiftContribution = {
   id: string;
   contributed_by: string;
-  amount: number;
+  amount?: number;
 };
 
 export type Gift = {
@@ -38,6 +38,7 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
   const { t, locale } = useLanguage();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isDescriptionTruncated, setIsDescriptionTruncated] = useState(false);
+  const [contributionFormVersion, setContributionFormVersion] = useState(0);
   const descriptionRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -58,21 +59,17 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
     : locale === 'it' ? 'Leggi tutto' : 'Leer más';
 
   const contributions = gift.gift_contributions ?? [];
-  const contributors = contributions.reduce<{ name: string; amount: number }[]>((acc, contribution) => {
+  const contributors = contributions.reduce<{ name: string }[]>((acc, contribution) => {
     const existing = acc.find((item) => item.name === contribution.contributed_by);
-    if (existing) {
-      existing.amount += contribution.amount;
-    } else {
-      acc.push({ name: contribution.contributed_by, amount: contribution.amount });
-    }
+    if (!existing) acc.push({ name: contribution.contributed_by });
     return acc;
   }, []);
-  const totalContributed = contributions.reduce((sum, c) => sum + c.amount, 0);
+  const totalContributed = contributions.reduce((sum, c) => sum + (c.amount ?? 0), 0);
   const fundedPct = gift.fundingPercent ?? (gift.divideable && gift.price ? Math.min(100, (totalContributed / gift.price) * 100) : 0);
   const isFullyFunded = gift.divideable && fundedPct >= 100;
   const myTotal = contributions
     .filter((c) => c.contributed_by === guestName)
-    .reduce((sum, c) => sum + c.amount, 0);
+    .reduce((sum, c) => sum + (c.amount ?? 0), 0);
   const viewerHasContribution = gift.viewerHasContribution ?? myTotal > 0;
   const canContribute = gift.divideable && (gift.price !== null || gift.fundingPercent !== undefined);
 
@@ -157,7 +154,10 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
 
         {canContribute && (
           <div className="space-y-1.5">
-            {isAdmin && gift.price !== null && (
+            {isAdmin && gift.fundingPercent !== undefined && (
+              <p className="font-body text-xs font-semibold text-green">{Math.round(fundedPct)}% funded</p>
+            )}
+            {!isAdmin && gift.price !== null && (
               <div className="flex justify-between font-body text-xs text-gray-500">
                 <span>{formatPrice(totalContributed)} {t.gifts.funded}</span>
                 <span>{formatPrice(Math.max(0, gift.price - totalContributed))} {t.gifts.remaining}</span>
@@ -169,7 +169,7 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
                 style={{ width: `${fundedPct}%` }}
               />
             </div>
-            {isAdmin && myTotal > 0 && (
+            {!isAdmin && myTotal > 0 && (
               <p className="font-body text-xs text-green font-medium">
                 {t.gifts.yourContribution} {formatPrice(myTotal)}
               </p>
@@ -184,9 +184,6 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
                       className="flex items-baseline justify-between gap-3 font-body text-xs text-charcoal/70"
                     >
                       <span className="min-w-0 truncate">{contributor.name}</span>
-                      <span className="shrink-0 font-semibold text-green">
-                        {formatPrice(contributor.amount)}
-                      </span>
                     </li>
                   ))}
                 </ul>
@@ -201,8 +198,13 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
           {gift.divideable ? (
             canContribute ? (
               <div className="w-full space-y-2">
-                <ContributeButton giftId={gift.id} />
-                {viewerHasContribution && <WithdrawContributionButton giftId={gift.id} />}
+                <ContributeButton key={contributionFormVersion} giftId={gift.id} />
+                {viewerHasContribution && (
+                  <WithdrawContributionButton
+                    giftId={gift.id}
+                    onWithdrawn={() => setContributionFormVersion((version) => version + 1)}
+                  />
+                )}
               </div>
             ) : null
           ) : isMine ? (

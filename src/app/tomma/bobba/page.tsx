@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { adminSupabase } from '@/lib/supabase/admin';
 import AdminPhotoGrid, { type AdminPhoto } from '@/components/admin/AdminPhotoGrid';
-import AdminGiftList, { type AdminGift } from '@/components/admin/AdminGiftList';
+import AdminGiftList, { type AdminGift, type AdminGiftContribution } from '@/components/admin/AdminGiftList';
 import { type AdminComment } from '@/components/admin/AdminCommentList';
 import AdminDietaryList from '@/components/admin/AdminDietaryList';
 import AdminGuestList, { type AdminGuest } from '@/components/admin/AdminGuestList';
@@ -15,6 +15,28 @@ import { galleryIsOpen } from '@/lib/gallery-window';
 
 export const dynamic = 'force-dynamic';
 
+type AdminGiftRow = Omit<AdminGift, 'gift_contributions' | 'fundingPercent'> & {
+  gift_contributions?: (AdminGiftContribution & { amount?: number })[];
+};
+
+function toAdminGift(gift: AdminGiftRow): AdminGift {
+  const contributions = gift.gift_contributions ?? [];
+  const contributionTotal = contributions.reduce((sum, contribution) => sum + (contribution.amount ?? 0), 0);
+  const fundingPercent = gift.divideable && gift.price
+    ? Math.min(100, (contributionTotal / gift.price) * 100)
+    : undefined;
+
+  return {
+    ...gift,
+    fundingPercent,
+    gift_contributions: contributions.map((contribution) => ({
+      id: contribution.id,
+      contributed_by: contribution.contributed_by,
+      created_at: contribution.created_at,
+    })),
+  };
+}
+
 async function loadAdminGifts(): Promise<AdminGift[]> {
   const ordered = await adminSupabase
     .from('gifts')
@@ -22,14 +44,14 @@ async function loadAdminGifts(): Promise<AdminGift[]> {
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true });
 
-  if (!ordered.error) return (ordered.data ?? []) as AdminGift[];
+  if (!ordered.error) return ((ordered.data ?? []) as AdminGiftRow[]).map(toAdminGift);
 
   const fallback = await adminSupabase
     .from('gifts')
     .select('id, name, description, image_url, external_link, price, reserved_by, reserved_at, created_at, divideable, gift_contributions(id, contributed_by, amount, created_at)')
     .order('created_at', { ascending: true });
 
-  return ((fallback.data ?? []) as Omit<AdminGift, 'sort_order'>[]).map((gift, index) => ({
+  return ((fallback.data ?? []) as Omit<AdminGiftRow, 'sort_order'>[]).map((gift, index) => toAdminGift({
     ...gift,
     sort_order: index,
   }));

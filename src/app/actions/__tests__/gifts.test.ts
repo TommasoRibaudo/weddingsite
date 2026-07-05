@@ -7,6 +7,7 @@ const mockSession = {
 };
 
 const revalidatePath = vi.fn();
+const refresh = vi.fn();
 const from = vi.fn();
 
 vi.mock('@/lib/session', () => ({
@@ -19,6 +20,7 @@ vi.mock('@/lib/supabase/admin', () => ({
 
 vi.mock('next/cache', () => ({
   revalidatePath,
+  refresh,
 }));
 
 function giftSelectResult(data: unknown) {
@@ -34,6 +36,15 @@ function insertResult(error: unknown = null) {
   };
 }
 
+function contributionDeleteResult(error: unknown = null) {
+  const query = {
+    delete: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+  };
+  query.eq.mockReturnValueOnce(query).mockResolvedValueOnce({ error });
+  return query;
+}
+
 describe('gift actions', () => {
   beforeEach(() => {
     mockSession.access = true;
@@ -41,6 +52,7 @@ describe('gift actions', () => {
     mockSession.isAdmin = false;
     from.mockReset();
     revalidatePath.mockReset();
+    refresh.mockReset();
   });
 
   it('rejects gift contributions from unauthenticated guests', async () => {
@@ -54,7 +66,8 @@ describe('gift actions', () => {
   it('validates gift contribution amounts before touching Supabase', async () => {
     const { contributeToGift } = await import('@/app/actions/gifts');
 
-    await expect(contributeToGift('gift-1', 0)).resolves.toEqual({ error: 'Invalid amount.' });
+    await expect(contributeToGift('gift-1', Number.NaN)).resolves.toEqual({ error: 'invalid_amount' });
+    await expect(contributeToGift('gift-1', 0)).resolves.toEqual({ error: 'invalid_amount' });
     expect(from).not.toHaveBeenCalled();
   });
 
@@ -67,9 +80,10 @@ describe('gift actions', () => {
     await expect(contributeToGift('gift-1', 125)).resolves.toEqual({ ok: true });
     expect(from).toHaveBeenCalledTimes(2);
     expect(revalidatePath).toHaveBeenCalledWith('/gifts');
+    expect(refresh).toHaveBeenCalled();
   });
 
-  it('stores a valid group gift contribution and revalidates gifts', async () => {
+  it('stores a valid group gift contribution and refreshes gifts', async () => {
     from
       .mockReturnValueOnce(giftSelectResult({ id: 'gift-1', price: 100, divideable: true }))
       .mockReturnValueOnce(insertResult());
@@ -77,5 +91,15 @@ describe('gift actions', () => {
 
     await expect(contributeToGift('gift-1', 30)).resolves.toEqual({ ok: true });
     expect(revalidatePath).toHaveBeenCalledWith('/gifts');
+    expect(refresh).toHaveBeenCalled();
+  });
+
+  it('reports contribution withdrawal failures', async () => {
+    from.mockReturnValueOnce(contributionDeleteResult({ message: 'delete failed' }));
+    const { withdrawContribution } = await import('@/app/actions/gifts');
+
+    await expect(withdrawContribution('gift-1')).resolves.toEqual({ error: 'Something went wrong. Please try again.' });
+    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
   });
 });

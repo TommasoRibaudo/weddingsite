@@ -9,7 +9,6 @@ import { addGift, deleteGift, updateGift, removeContribution, reorderGift } from
 export type AdminGiftContribution = {
   id: string;
   contributed_by: string;
-  amount: number;
   created_at?: string;
 };
 
@@ -26,6 +25,7 @@ export type AdminGift = {
   sort_order: number;
   divideable: boolean;
   gift_contributions?: AdminGiftContribution[];
+  fundingPercent?: number;
 };
 
 function formatPrice(price: number) {
@@ -157,7 +157,7 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
                 <th className="py-2 pr-4 font-semibold text-gray-700">Name</th>
                 <th className="py-2 pr-4 font-semibold text-gray-700">Price</th>
                 <th className="py-2 pr-4 font-semibold text-gray-700">Status</th>
-                <th className="py-2 pr-4 font-semibold text-gray-700">Reserved by</th>
+                <th className="py-2 pr-4 font-semibold text-gray-700">Gifted by</th>
                 <th className="py-2 pr-4 font-semibold text-gray-700">Reserved at</th>
                 <th className="py-2 font-semibold text-gray-700">Actions</th>
               </tr>
@@ -167,10 +167,8 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
                 const isWorking = isPending && workingId === gift.id;
                 const isEditing = editingId === gift.id;
                 const contributions = gift.gift_contributions ?? [];
-                const totalContributed = contributions.reduce((s, c) => s + c.amount, 0);
-                const isFullyFunded = gift.divideable && gift.price !== null && totalContributed >= gift.price;
-                const fundedPct = gift.divideable && gift.price ? Math.min(100, Math.round((totalContributed / gift.price) * 100)) : 0;
-
+                const roundedFundingPercent = gift.fundingPercent === undefined ? null : Math.round(gift.fundingPercent);
+                const isFullyFunded = roundedFundingPercent !== null && roundedFundingPercent >= 100;
                 return (
                   <Fragment key={gift.id}>
                     <tr className="border-b border-greige hover:bg-green-pale/50 transition-colors">
@@ -203,11 +201,17 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
                       <td className="py-2 pr-4">
                         {gift.divideable ? (
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
-                            isFullyFunded
+                            contributions.length > 0
                               ? 'bg-green text-white border-transparent'
                               : 'bg-green-pale text-green border-green/20'
                           }`}>
-                            {isFullyFunded ? 'Funded' : `Group ${fundedPct}%`}
+                            {roundedFundingPercent !== null
+                              ? isFullyFunded
+                                ? 'Funded 100%'
+                                : `Gifted ${roundedFundingPercent}%`
+                              : contributions.length > 0
+                                ? 'Gifted'
+                                : 'Available'}
                           </span>
                         ) : gift.reserved_by ? (
                           <span className="bg-green text-white text-xs font-semibold px-2 py-0.5 rounded-full">
@@ -222,7 +226,7 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
                       <td className="py-2 pr-4 text-gray-600">
                         {gift.divideable
                           ? contributions.length > 0
-                            ? `${contributions.length} contributor${contributions.length !== 1 ? 's' : ''}`
+                            ? contributions.map((contribution) => contribution.contributed_by).join(', ')
                             : '-'
                           : (gift.reserved_by ?? '-')}
                       </td>
@@ -353,18 +357,12 @@ export default function AdminGiftList({ gifts }: { gifts: AdminGift[] }) {
                             <div className="border-t border-greige pt-4">
                               <p className="font-body text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                                 Contributions ({contributions.length})
-                                {gift.price !== null && (
-                                  <span className="ml-2 normal-case font-normal text-gray-400">
-                                    — {formatPrice(totalContributed)} of {formatPrice(gift.price)}
-                                  </span>
-                                )}
                               </p>
                               <ul className="space-y-1">
                                 {contributions.map((c) => (
                                   <li key={c.id} className="flex items-center justify-between gap-4 font-body text-sm text-gray-600">
                                     <span>
                                       <span className="font-medium">{c.contributed_by}</span>
-                                      <span className="text-gray-400"> — {formatPrice(c.amount)}</span>
                                       {c.created_at && (
                                         <span className="text-gray-400"> · {formatDate(c.created_at)}</span>
                                       )}
