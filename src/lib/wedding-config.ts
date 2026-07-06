@@ -47,7 +47,7 @@ export const wedding = {
   dressCodeLines: [
     'Please avoid wearing white or light beige.',
     'The ceremony will be on the beach, so choose comfortable shoes for sand; we will not be on the beach for too long.',
-    'Even by the sea, it is still a wedding. For men, we recommend fresh trousers that are not denim, paired with a short-sleeve or three-quarter-sleeve shirt.',
+    'Even by the sea, it is still a wedding. For men, we recommend fresh trousers that are not denim, paired with a short-sleeve or three-quarter-sleeve shirt that is not white.',
     'For women, a dress with comfortable footwear is a lovely choice.',
   ],
   schedule: [

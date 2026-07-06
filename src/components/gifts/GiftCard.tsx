@@ -6,7 +6,9 @@ import ReserveButton from './ReserveButton';
 import UnReserveButton from './UnReserveButton';
 import ContributeButton from './ContributeButton';
 import WithdrawContributionButton from './WithdrawContributionButton';
+import DepositInstructions from './DepositInstructions';
 import { useLanguage } from '@/components/LanguageProvider';
+import type { GiftDepositConfig } from '@/lib/gift-deposit-types';
 
 export type GiftContribution = {
   id: string;
@@ -34,11 +36,22 @@ function formatPrice(price: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(price);
 }
 
-export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isAdmin: boolean; guestName: string }) {
+export default function GiftCard({
+  gift,
+  isAdmin,
+  guestName,
+  depositConfig,
+}: {
+  gift: Gift;
+  isAdmin: boolean;
+  guestName: string;
+  depositConfig: GiftDepositConfig | null;
+}) {
   const { t, locale } = useLanguage();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isDescriptionTruncated, setIsDescriptionTruncated] = useState(false);
   const [contributionFormVersion, setContributionFormVersion] = useState(0);
+  const [justContributed, setJustContributed] = useState(false);
   const descriptionRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -70,7 +83,7 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
   const myTotal = contributions
     .filter((c) => c.contributed_by === guestName)
     .reduce((sum, c) => sum + (c.amount ?? 0), 0);
-  const viewerHasContribution = gift.viewerHasContribution ?? myTotal > 0;
+  const viewerHasContribution = justContributed || (gift.viewerHasContribution ?? myTotal > 0);
   const canContribute = gift.divideable && (gift.price !== null || gift.fundingPercent !== undefined);
 
   const isReserved = !gift.divideable && gift.reserved_by !== null;
@@ -198,11 +211,19 @@ export default function GiftCard({ gift, isAdmin, guestName }: { gift: Gift; isA
           {gift.divideable ? (
             canContribute ? (
               <div className="w-full space-y-2">
-                <ContributeButton key={contributionFormVersion} giftId={gift.id} />
+                <ContributeButton
+                  key={contributionFormVersion}
+                  giftId={gift.id}
+                  onContributed={() => setJustContributed(true)}
+                />
+                {viewerHasContribution && depositConfig && <DepositInstructions config={depositConfig} />}
                 {viewerHasContribution && (
                   <WithdrawContributionButton
                     giftId={gift.id}
-                    onWithdrawn={() => setContributionFormVersion((version) => version + 1)}
+                    onWithdrawn={() => {
+                      setJustContributed(false);
+                      setContributionFormVersion((version) => version + 1);
+                    }}
                   />
                 )}
               </div>

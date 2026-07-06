@@ -6,6 +6,7 @@ import type { Gift } from '@/components/gifts/GiftCard';
 import { isWeddingDay } from '@/lib/wedding-config';
 import { redirect } from 'next/navigation';
 import PageIntro from '@/components/PageIntro';
+import { getGiftDepositConfig } from '@/lib/gift-deposit-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,6 +54,7 @@ export default async function GiftsPage() {
   const isAdmin = session.isAdmin ?? false;
   const guestName = session.guestName ?? '';
   const giftMapEmbedUrl = getGiftMapEmbedUrl();
+  const depositConfig = getGiftDepositConfig();
 
   const gifts = (await loadGifts()).map((gift) => {
     const contributions = gift.gift_contributions ?? [];
@@ -88,7 +90,7 @@ export default async function GiftsPage() {
         Elige el regalo en el que quieres participar, escribe el monto que prefieres aportar y presiona Aportar.
       </p>
       <GiftMapSection embedUrl={giftMapEmbedUrl} />
-      <GiftGrid gifts={gifts} isAdmin={isAdmin} guestName={guestName} />
+      <GiftGrid gifts={gifts} isAdmin={isAdmin} guestName={guestName} depositConfig={depositConfig} />
     </div>
   );
 }

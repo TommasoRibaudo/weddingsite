@@ -75,7 +75,7 @@ export const translations = {
       dressCodeLines: [
         'Por favor evita vestir de blanco o beige claro.',
         'La ceremonia será en la playa, así que elige zapatos cómodos para la arena; no estaremos en la playa por mucho tiempo.',
-        'Aunque estemos junto al mar, sigue siendo una boda. Para hombres, recomendamos pantalones frescos que no sean de mezclilla, con camisa de manga corta o tres cuartos.',
+        'Aunque estemos junto al mar, sigue siendo una boda. Para hombres, recomendamos pantalones frescos que no sean de mezclilla, con camisa de manga corta o tres cuartos que no sea blanca.',
         'Para mujeres, un vestido con calzado cómodo es una linda opción.',
       ],
       schedule: [
@@ -162,6 +162,11 @@ export const translations = {
       amountLabel: 'Tu aportación',
       yourContribution: 'Tu aportación:',
       contributors: 'Participantes:',
+      depositThanks: 'Gracias por tu aporte.',
+      depositIntro: 'Puedes hacer el deposito en Costa Rica o en Italy con estos datos.',
+      depositDestinationLabel: 'Destino del deposito',
+      depositBeneficiary: 'Beneficiario',
+      depositReason: 'Causale / detalle del deposito',
       invalidAmount: 'Ingresa un monto válido.',
       exceedsRemaining: 'El monto supera el saldo restante.',
       youReservedThis: 'Lo reservaste ✓',
@@ -277,7 +282,7 @@ export const translations = {
       dressCodeLines: [
         'Per favore evita il bianco o il beige chiaro.',
         'La cerimonia sarà sulla spiaggia, quindi scegli scarpe comode per la sabbia; non resteremo sulla spiaggia a lungo.',
-        'Anche se saremo al mare, è comunque un matrimonio. Per gli uomini consigliamo pantaloni leggeri, non jeans, con una camicia a maniche corte o a tre quarti.',
+        'Anche se saremo al mare, è comunque un matrimonio. Per gli uomini consigliamo pantaloni leggeri, non jeans, con una camicia a maniche corte o a tre quarti che non sia bianca.',
         'Per le donne, un vestito con scarpe comode è una bellissima scelta.',
       ],
       schedule: [
@@ -364,6 +369,11 @@ export const translations = {
       amountLabel: 'Il tuo contributo',
       yourContribution: 'Il tuo contributo:',
       contributors: 'Partecipanti:',
+      depositThanks: 'Grazie per il contributo.',
+      depositIntro: 'Puoi fare il bonifico in Costa Rica o in Italy con questi dati.',
+      depositDestinationLabel: 'Destinazione del deposito',
+      depositBeneficiary: 'Beneficiario',
+      depositReason: 'Causale del bonifico',
       invalidAmount: 'Inserisci un importo valido.',
       exceedsRemaining: "L'importo supera il saldo rimanente.",
       youReservedThis: 'Lo hai riservato ✓',

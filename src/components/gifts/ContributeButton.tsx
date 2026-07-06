@@ -6,7 +6,7 @@ import { useLanguage } from '@/components/LanguageProvider';
 
 type Status = 'idle' | 'pending' | 'done' | 'error';
 
-export default function ContributeButton({ giftId }: { giftId: string }) {
+export default function ContributeButton({ giftId, onContributed }: { giftId: string; onContributed?: () => void }) {
   const { t } = useLanguage();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -32,6 +32,7 @@ export default function ContributeButton({ giftId }: { giftId: string }) {
         const result = await contributeToGift(giftId, val);
         if (result.ok) {
           setStatus('done');
+          onContributed?.();
           router.refresh();
         } else {
           setStatus('error');
