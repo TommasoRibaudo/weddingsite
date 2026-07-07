@@ -156,6 +156,14 @@ export default function DietaryForm({ existing }: { existing: DietaryResponse[] 
         ))}
 
         <div className="flex flex-col gap-3 mt-2">
+          <button
+            type="submit"
+            disabled={isPending}
+            className="bg-green text-white font-body font-semibold px-8 py-3 rounded-lg hover:bg-green-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? t.menu.saving : t.menu.save}
+          </button>
+
           {people.length < MAX_PEOPLE && (
             <button
               type="button"
@@ -169,13 +177,6 @@ export default function DietaryForm({ existing }: { existing: DietaryResponse[] 
           {saved && <p className="font-body text-green text-sm">{t.menu.saved}</p>}
           {error && <p className="font-body text-red-600 text-sm">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={isPending}
-            className="bg-green text-white font-body font-semibold px-8 py-3 rounded-lg hover:bg-green-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isPending ? t.menu.saving : t.menu.save}
-          </button>
         </div>
       </form>
     </section>
